@@ -10,7 +10,7 @@ import (
 
 func Test_portStoreToDomain(t *testing.T) {
 	type args struct {
-		p *Port
+		p *InmemPort
 	}
 
 	tests := []struct {
@@ -54,9 +54,9 @@ func Test_portStoreToDomain(t *testing.T) {
 
 const testString = "test"
 
-func newTestStorePort(t *testing.T) *Port {
+func newTestStorePort(t *testing.T) *InmemPort {
 	t.Helper()
-	return &Port{
+	return &InmemPort{
 		Id:          testString,
 		Name:        testString,
 		Code:        testString,

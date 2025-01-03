@@ -7,7 +7,7 @@ import (
 	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
 )
 
-type Port struct {
+type InmemPort struct {
 	Id          string
 	Name        string
 	Code        string
@@ -23,12 +23,12 @@ type Port struct {
 	UpdatedAt   time.Time
 }
 
-func (p *Port) Copy() *Port {
+func (p *InmemPort) Copy() *InmemPort {
 	if p == nil {
 		return nil
 	}
 
-	return &Port{
+	return &InmemPort{
 		Id:          p.Id,
 		Name:        p.Name,
 		Code:        p.Code,
@@ -45,7 +45,7 @@ func (p *Port) Copy() *Port {
 	}
 }
 
-func portStoreToDomain(port *Port) (*domain.Port, error) {
+func portStoreToDomain(port *InmemPort) (*domain.Port, error) {
 	if port == nil {
 		return nil, fmt.Errorf("store port is nil")
 	}
@@ -65,8 +65,8 @@ func portStoreToDomain(port *Port) (*domain.Port, error) {
 	)
 }
 
-func portDomainToStore(p *domain.Port) *Port {
-	return &Port{
+func portDomainToStore(p *domain.Port) *InmemPort {
+	return &InmemPort{
 		Id:          p.Id(),
 		Name:        p.Name(),
 		Code:        p.Code(),

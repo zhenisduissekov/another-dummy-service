@@ -50,8 +50,9 @@ func run() error {
 	router.HandleFunc("/ports", httpServer.DeleteAllPorts).Methods(http.MethodDelete)
 
 	srv := &http.Server{
-		Addr:    cfg.Port,
-		Handler: router,
+		Addr:              cfg.Port,
+		Handler:           router,
+		ReadHeaderTimeout: 10 * time.Second, // Set a reasonable timeout
 	}
 
 	// listen to OS signals and gracefully shutdown HTTP server

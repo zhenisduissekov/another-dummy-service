@@ -10,13 +10,13 @@ import (
 )
 
 type PortStore struct {
-	data map[string]*Port
+	data map[string]*InmemPort
 	mu   sync.RWMutex
 }
 
 func NewPortStore() *PortStore {
 	return &PortStore{
-		data: make(map[string]*Port),
+		data: make(map[string]*InmemPort),
 	}
 }
 
@@ -68,7 +68,7 @@ func (ps *PortStore) CreateOrUpdatePort(ctx context.Context, port *domain.Port) 
 	}
 }
 
-func (ps *PortStore) createPort(ctx context.Context, storePort *Port) error {
+func (ps *PortStore) createPort(ctx context.Context, storePort *InmemPort) error {
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -87,7 +87,7 @@ func (ps *PortStore) createPort(ctx context.Context, storePort *Port) error {
 	return nil
 }
 
-func (ps *PortStore) updatePort(ctx context.Context, port *Port) error {
+func (ps *PortStore) updatePort(ctx context.Context, port *InmemPort) error {
 	// Check for context cancellation
 	select {
 	case <-ctx.Done():
@@ -157,7 +157,7 @@ func (ps *PortStore) DeleteAllPorts(ctx context.Context) error {
 	defer ps.mu.Unlock()
 
 	// Reinitialize the map to clear all ports
-	ps.data = make(map[string]*Port)
+	ps.data = make(map[string]*InmemPort)
 
 	return nil
 }
