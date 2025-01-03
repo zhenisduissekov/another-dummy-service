@@ -45,6 +45,12 @@ func (ps *PortStore) CountPorts(_ context.Context) (int, error) {
 }
 
 func (ps *PortStore) CreateOrUpdatePort(ctx context.Context, port *domain.Port) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
 	if port == nil {
 		return domain.ErrNil
 	}
@@ -62,7 +68,13 @@ func (ps *PortStore) CreateOrUpdatePort(ctx context.Context, port *domain.Port) 
 	}
 }
 
-func (ps *PortStore) createPort(_ context.Context, storePort *Port) error {
+func (ps *PortStore) createPort(ctx context.Context, storePort *Port) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
 	if storePort == nil {
 		return domain.ErrNil
 	}
@@ -75,7 +87,14 @@ func (ps *PortStore) createPort(_ context.Context, storePort *Port) error {
 	return nil
 }
 
-func (ps *PortStore) updatePort(_ context.Context, port *Port) error {
+func (ps *PortStore) updatePort(ctx context.Context, port *Port) error {
+	// Check for context cancellation
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
 	if port == nil {
 		return domain.ErrNil
 	}
@@ -101,6 +120,44 @@ func (ps *PortStore) updatePort(_ context.Context, port *Port) error {
 	storePortCopy.UpdatedAt = time.Now()
 
 	ps.data[port.Id] = storePortCopy
+
+	return nil
+}
+
+func (ps *PortStore) DeletePortById(ctx context.Context, id string) error {
+	// Check for context cancellation
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
+	// Ensure thread safety
+	ps.mu.Lock()
+	defer ps.mu.Unlock()
+
+	// Check if the port exists, and delete if found
+	if _, exists := ps.data[id]; !exists {
+		return domain.ErrNotFound
+	}
+	delete(ps.data, id)
+	return nil
+}
+
+func (ps *PortStore) DeleteAllPorts(ctx context.Context) error {
+	// Check for context cancellation
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
+	// Ensure thread safety
+	ps.mu.Lock()
+	defer ps.mu.Unlock()
+
+	// Reinitialize the map to clear all ports
+	ps.data = make(map[string]*Port)
 
 	return nil
 }

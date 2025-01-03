@@ -2,10 +2,11 @@ package inmem
 
 import (
 	"context"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
-	"testing"
 )
 
 func TestPortStore_CreateOrUpdatePort(t *testing.T) {
@@ -47,6 +48,74 @@ func TestPortStore_CreateOrUpdatePort(t *testing.T) {
 		updatedPort, err := store.GetPort(context.Background(), randomPort.Id())
 		require.NoError(t, err)
 		require.NotEqual(t, updatedPort, beforeUpdatedPort)
+	})
+
+	t.Run("delete port", func(t *testing.T) {
+		t.Parallel()
+
+		randomPort := newRandomDomainPort(t)
+
+		err := store.CreateOrUpdatePort(context.Background(), randomPort)
+		require.NoError(t, err)
+
+		port, err := store.GetPort(context.Background(), randomPort.Id())
+		require.NoError(t, err)
+		require.Equal(t, port, randomPort)
+
+		err = store.DeletePortById(context.Background(), randomPort.Id())
+		require.NoError(t, err)
+
+		port, err = store.GetPort(context.Background(), randomPort.Id())
+		require.Error(t, err)
+		require.ErrorIs(t, err, domain.ErrNotFound)
+	})
+
+	t.Run("delete all ports", func(t *testing.T) {
+		t.Parallel()
+
+		randomPort1 := newRandomDomainPort(t)
+		randomPort2 := newRandomDomainPort(t)
+		randomPort3 := newRandomDomainPort(t)
+
+		err := store.CreateOrUpdatePort(context.Background(), randomPort1)
+		require.NoError(t, err)
+		err = store.CreateOrUpdatePort(context.Background(), randomPort2)
+		require.NoError(t, err)
+		err = store.CreateOrUpdatePort(context.Background(), randomPort3)
+		require.NoError(t, err)
+
+		port, err := store.GetPort(context.Background(), randomPort1.Id())
+		require.NoError(t, err)
+		require.Equal(t, port, randomPort1)
+		port, err = store.GetPort(context.Background(), randomPort2.Id())
+		require.NoError(t, err)
+		require.Equal(t, port, randomPort2)
+		port, err = store.GetPort(context.Background(), randomPort3.Id())
+		require.NoError(t, err)
+		require.Equal(t, port, randomPort3)
+
+		count, err := store.CountPorts(context.Background())
+		require.NoError(t, err)
+		require.Equal(t, 3, count)
+
+		err = store.DeleteAllPorts(context.Background())
+		require.NoError(t, err)
+
+		count, err = store.CountPorts(context.Background())
+		require.NoError(t, err)
+		require.Equal(t, 0, count)
+
+		port, err = store.GetPort(context.Background(), randomPort1.Id())
+		require.Error(t, err)
+		require.ErrorIs(t, err, domain.ErrNotFound)
+
+		port, err = store.GetPort(context.Background(), randomPort2.Id())
+		require.Error(t, err)
+		require.ErrorIs(t, err, domain.ErrNotFound)
+
+		port, err = store.GetPort(context.Background(), randomPort3.Id())
+		require.Error(t, err)
+		require.ErrorIs(t, err, domain.ErrNotFound)
 	})
 
 	t.Run("nil port", func(t *testing.T) {

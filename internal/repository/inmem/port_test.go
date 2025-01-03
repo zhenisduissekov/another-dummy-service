@@ -1,10 +1,11 @@
 package inmem
 
 import (
-	"github.com/stretchr/testify/require"
-	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
 )
 
 func Test_portStoreToDomain(t *testing.T) {

@@ -46,6 +46,8 @@ func run() error {
 	router.HandleFunc("/port", httpServer.GetPort).Methods(http.MethodGet)
 	router.HandleFunc("/count", httpServer.CountPorts).Methods(http.MethodGet)
 	router.HandleFunc("/ports", httpServer.UploadPorts).Methods(http.MethodPost)
+	router.HandleFunc("/ports/{id}", httpServer.DeletePortsById).Methods(http.MethodDelete)
+	router.HandleFunc("/ports", httpServer.DeleteAllPorts).Methods(http.MethodDelete)
 
 	srv := &http.Server{
 		Addr:    cfg.Port,

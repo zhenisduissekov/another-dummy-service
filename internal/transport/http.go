@@ -3,8 +3,11 @@ package transport
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 
 	"github.com/zhenisduissekov/another-dummy-service/internal/common/server"
 	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
@@ -14,6 +17,8 @@ type PortService interface {
 	GetPort(ctx context.Context, id string) (*domain.Port, error)
 	CountPorts(ctx context.Context) (int, error)
 	CreateOrUpdatePort(ctx context.Context, port *domain.Port) error
+	DeleteAllPorts(ctx context.Context) error
+	DeletePortById(ctx context.Context, id string) error
 }
 
 type HttpServer struct {
@@ -113,4 +118,41 @@ func (h HttpServer) UploadPorts(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+}
+
+func (h HttpServer) DeleteAllPorts(w http.ResponseWriter, r *http.Request) {
+	deleteAll := r.URL.Query().Get("all") == "true"
+	if !deleteAll {
+		server.BadRequest("missing required parameter: all=true", nil, w, r)
+		return
+	}
+
+	err := h.service.DeleteAllPorts(r.Context())
+	if err != nil {
+		server.InternalError("could not delete all ports", err, w, r)
+		return
+	}
+
+	server.RespondOK("all ports deleted successfully", w, r)
+}
+
+func (h HttpServer) DeletePortsById(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+	if id == "" {
+		server.BadRequest("missing port ID", nil, w, r)
+		return
+	}
+
+	err := h.service.DeletePortById(r.Context(), id)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			server.NotFound("port not found", err, w, r)
+			return
+		}
+		server.InternalError("could not delete port by id", err, w, r)
+		return
+	}
+
+	server.RespondOK(fmt.Sprintf("deleted port[%s] successfully", id), w, r)
 }
