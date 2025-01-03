@@ -4,17 +4,18 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-	"github.com/zhenisduissekov/another-dummy-service/internal/common/server"
-	"github.com/zhenisduissekov/another-dummy-service/internal/repository/inmem"
-	"github.com/zhenisduissekov/another-dummy-service/internal/services"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+	"github.com/zhenisduissekov/another-dummy-service/internal/common/server"
+	"github.com/zhenisduissekov/another-dummy-service/internal/repository/inmem"
+	"github.com/zhenisduissekov/another-dummy-service/internal/services"
 )
 
 type HttpTestSuite struct {
@@ -24,14 +25,14 @@ type HttpTestSuite struct {
 }
 
 func NewTestSuite() *HttpTestSuite {
-	suite := &HttpTestSuite{}
+	s := &HttpTestSuite{}
 
 	portStore := inmem.NewPortStore()
 
-	suite.portService = services.NewPortService(portStore)
-	suite.httpServer = NewHttpServer(suite.portService)
+	s.portService = services.NewPortService(portStore)
+	s.httpServer = NewHttpServer(s.portService)
 
-	return suite
+	return s
 }
 
 func TestHttpTestSuite(t *testing.T) {

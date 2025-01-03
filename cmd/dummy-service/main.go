@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,6 +11,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/zhenisduissekov/another-dummy-service/internal/config"
+	"github.com/zhenisduissekov/another-dummy-service/internal/log"
 	"github.com/zhenisduissekov/another-dummy-service/internal/repository/inmem"
 	"github.com/zhenisduissekov/another-dummy-service/internal/services"
 	"github.com/zhenisduissekov/another-dummy-service/internal/transport"
@@ -20,7 +19,7 @@ import (
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Printf("Could not run app: %v\n", err)
+		log.Errorf("Could not run app: %v\n", err)
 	}
 }
 
@@ -46,10 +45,13 @@ func run() error {
 	router.HandleFunc("/port", httpServer.GetPort).Methods(http.MethodGet)
 	router.HandleFunc("/count", httpServer.CountPorts).Methods(http.MethodGet)
 	router.HandleFunc("/ports", httpServer.UploadPorts).Methods(http.MethodPost)
+	router.HandleFunc("/ports/{id}", httpServer.DeletePortsById).Methods(http.MethodDelete)
+	router.HandleFunc("/ports", httpServer.DeleteAllPorts).Methods(http.MethodDelete)
 
 	srv := &http.Server{
-		Addr:    cfg.Port,
-		Handler: router,
+		Addr:              cfg.Port,
+		Handler:           router,
+		ReadHeaderTimeout: 10 * time.Second, // Set a reasonable timeout
 	}
 
 	// listen to OS signals and gracefully shutdown HTTP server
@@ -65,13 +67,13 @@ func run() error {
 
 		err := srv.Shutdown(ctx)
 		if err != nil {
-			log.Printf("HTTP Server Shutdown Error: %v", err)
+			log.Infof("HTTP Server Shutdown Error: %v", err)
 		}
 
 		close(stopped)
 	}()
 
-	log.Printf("Starting HTTP server on %s", cfg.Port)
+	log.Infof("Starting HTTP server on %s", cfg.Port)
 
 	err := srv.ListenAndServe()
 	if err != http.ErrServerClosed {
@@ -80,7 +82,6 @@ func run() error {
 
 	<-stopped
 
-	log.Println("Server has been stopped")
-
+	log.Info("Server has been stopped")
 	return nil
 }
