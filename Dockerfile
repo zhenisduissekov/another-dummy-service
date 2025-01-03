@@ -37,7 +37,7 @@ WORKDIR /app
 COPY --from=builder /app/app .
 
 # Set any environment variables required by the application
-ENV HTTP_ADDR=:8080
+ENV SERVICE_PORT=:8080
 
 # Expose the port that the application listens on
 EXPOSE 8080

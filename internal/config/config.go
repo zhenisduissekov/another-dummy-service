@@ -6,9 +6,9 @@ type Config struct {
 	Port string
 }
 
-func New() *Config {
+func Read() *Config {
 
-	port, exists := os.LookupEnv("HTTP_ADDR")
+	port, exists := os.LookupEnv("SERVICE_PORT")
 	if !exists {
 		port = "8080"
 	}

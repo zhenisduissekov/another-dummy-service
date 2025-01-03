@@ -3,9 +3,10 @@ package inmem
 import (
 	"context"
 	"fmt"
-	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
 	"sync"
 	"time"
+
+	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
 )
 
 type PortStore struct {
@@ -44,7 +45,7 @@ func (ps *PortStore) CountPorts(_ context.Context) (int, error) {
 }
 
 func (ps *PortStore) CreateOrUpdatePort(ctx context.Context, port *domain.Port) error {
-	if ps == nil {
+	if port == nil {
 		return domain.ErrNil
 	}
 

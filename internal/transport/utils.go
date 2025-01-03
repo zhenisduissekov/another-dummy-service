@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
 	"io"
+
+	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
 )
 
 func portHttpToDomain(port *Port) (*domain.Port, error) {
@@ -27,30 +28,34 @@ func portHttpToDomain(port *Port) (*domain.Port, error) {
 func readPorts(ctx context.Context, r io.Reader, portChan chan Port) error {
 	decoder := json.NewDecoder(r)
 
+	// Read opening delimiter
 	t, err := decoder.Token()
 	if err != nil {
 		return fmt.Errorf("failed to read opening delimiter: %w", err)
 	}
 
+	// Make sure opening delimiter is `{`
 	if t != json.Delim('{') {
-		return fmt.Errorf("expected string, got %v", t)
+		return fmt.Errorf("expected {, got %v", t)
 	}
 
 	for decoder.More() {
-		if ctx.Err != nil {
+		// Check if context is cancelled.
+		if ctx.Err() != nil {
 			return ctx.Err()
 		}
-
+		// Read the port ID.
 		t, err := decoder.Token()
 		if err != nil {
-			return fmt.Errorf("failed to read opening delimiter: %w", err)
+			return fmt.Errorf("failed to read port ID: %w", err)
 		}
-
+		// Make sure port ID is a string.
 		portId, ok := t.(string)
 		if !ok {
 			return fmt.Errorf("expected string, got %v", t)
 		}
 
+		// Read the port and send it to the channel.
 		var port Port
 		err = decoder.Decode(&port)
 		if err != nil {

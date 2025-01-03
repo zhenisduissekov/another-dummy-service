@@ -3,10 +3,11 @@ package transport
 import (
 	"context"
 	"errors"
-	"github.com/zhenisduissekov/another-dummy-service/internal/common/server"
-	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
 	"log"
 	"net/http"
+
+	"github.com/zhenisduissekov/another-dummy-service/internal/common/server"
+	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
 )
 
 type PortService interface {

@@ -4,53 +4,60 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/zhenisduissekov/another-dummy-service/internal/config"
-	"github.com/zhenisduissekov/another-dummy-service/internal/repository/inmem"
-	"github.com/zhenisduissekov/another-dummy-service/internal/services"
-	"github.com/zhenisduissekov/another-dummy-service/internal/transport"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/zhenisduissekov/another-dummy-service/internal/config"
+	"github.com/zhenisduissekov/another-dummy-service/internal/repository/inmem"
+	"github.com/zhenisduissekov/another-dummy-service/internal/services"
+	"github.com/zhenisduissekov/another-dummy-service/internal/transport"
 )
 
 func main() {
-	if err := app(); err != nil {
+	if err := run(); err != nil {
 		fmt.Printf("Could not run app: %v\n", err)
 	}
 }
 
-func app() error {
-	cfg := config.New()
+func run() error {
+	// read config from env
+	cfg := config.Read()
 
-	repo := inmem.NewPortStore()
+	// create port repository
+	portStoreRepo := inmem.NewPortStore()
 
-	service := services.NewService(repo)
+	// create port service
+	portService := services.NewPortService(portStoreRepo)
 
-	server := transport.NewHttpServer(service)
+	// create http server with application injected
+	httpServer := transport.NewHttpServer(portService)
 
+	// create http router
 	router := mux.NewRouter()
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode("health OK")
 	}).Methods(http.MethodGet)
-	router.HandleFunc("/port", server.GetPort).Methods(http.MethodGet)
-	router.HandleFunc("/count", server.CountPorts).Methods(http.MethodGet)
-	router.HandleFunc("/ports", server.UploadPorts).Methods(http.MethodPost)
+	router.HandleFunc("/port", httpServer.GetPort).Methods(http.MethodGet)
+	router.HandleFunc("/count", httpServer.CountPorts).Methods(http.MethodGet)
+	router.HandleFunc("/ports", httpServer.UploadPorts).Methods(http.MethodPost)
 
 	srv := &http.Server{
 		Addr:    cfg.Port,
 		Handler: router,
 	}
 
+	// listen to OS signals and gracefully shutdown HTTP server
 	stopped := make(chan struct{})
 
 	go func() {
 		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, syscall.SIGINT, syscall.SIGTERM)
+		signal.Notify(sigint, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 		<-sigint
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

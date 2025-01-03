@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+
 	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
 )
 
@@ -15,7 +16,7 @@ type PortService struct {
 	repo PortRepository
 }
 
-func NewService(repo PortRepository) PortService {
+func NewPortService(repo PortRepository) PortService {
 	return PortService{
 		repo: repo,
 	}

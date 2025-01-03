@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/zhenisduissekov/another-dummy-service/internal/common/errors"
 )
@@ -48,7 +49,10 @@ func httpRespondWithError(err error, slug string, w http.ResponseWriter, _ *http
 
 	resp := ErrorResponse{
 		Slug:       slug,
-		httpStatus: status,
+		Message:    msg,
+		HTTPStatus: status,
+		Details:    nil,                                   // not in prod err.Error(),                           // Add relevant details if applicable
+		Timestamp:  time.Now().UTC().Format(time.RFC3339), // ISO 8601 format
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -57,11 +61,9 @@ func httpRespondWithError(err error, slug string, w http.ResponseWriter, _ *http
 }
 
 type ErrorResponse struct {
-	Slug       string `json:"slug"`
-	httpStatus int
-}
-
-func (e ErrorResponse) Render(w http.ResponseWriter, _ *http.Request) error {
-	w.WriteHeader(e.httpStatus)
-	return nil
+	Slug       string `json:"slug"`       // A concise, machine-readable error identifier
+	Message    string `json:"message"`    // A human-readable description of the error
+	HTTPStatus int    `json:"httpStatus"` // The HTTP status code for the error
+	Details    any    `json:"details"`    // Additional context or details about the error
+	Timestamp  string `json:"timestamp"`  // The time the error occurred (ISO 8601 format)
 }
