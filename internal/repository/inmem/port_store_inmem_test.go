@@ -52,6 +52,7 @@ func TestPortStore_CreateOrUpdatePort(t *testing.T) {
 
 	t.Run("delete port", func(t *testing.T) {
 		t.Parallel()
+		store := NewPortStore()
 
 		randomPort := newRandomDomainPort(t)
 
@@ -72,6 +73,8 @@ func TestPortStore_CreateOrUpdatePort(t *testing.T) {
 
 	t.Run("delete all ports", func(t *testing.T) {
 		t.Parallel()
+
+		store := NewPortStore()
 
 		randomPort1 := newRandomDomainPort(t)
 		randomPort2 := newRandomDomainPort(t)
