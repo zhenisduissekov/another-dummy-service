@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 
 	"github.com/zhenisduissekov/another-dummy-service/internal/common/server"
 	"github.com/zhenisduissekov/another-dummy-service/internal/domain"
+	"github.com/zhenisduissekov/another-dummy-service/internal/log"
 )
 
 type PortService interface {
@@ -92,19 +92,19 @@ func (h HttpServer) UploadPorts(w http.ResponseWriter, r *http.Request) {
 	for {
 		select {
 		case <-r.Context().Done():
-			log.Println("request context cancelled")
+			log.Info("request context cancelled")
 			return
 		case <-doneChan:
-			log.Println("finished reading ports")
+			log.Info("finished reading ports")
 			server.RespondOK(map[string]int{"total_ports": portCounter}, w, r)
 			return
 		case err := <-errChan:
-			log.Printf("error while parsing port json: %+v", err)
+			log.Infof("error while parsing port json: %+v", err)
 			server.BadRequest("invalid json", err, w, r)
 			return
 		case port := <-portChan:
 			portCounter++
-			log.Printf("[%d] received port: %+v", portCounter, port)
+			log.Infof("[%d] received port: %+v", portCounter, port)
 			p, err := portHttpToDomain(&port)
 			if err != nil {
 				server.BadRequest("port-to-domain", err, w, r)

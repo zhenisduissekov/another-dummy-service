@@ -2,11 +2,11 @@ package server
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/zhenisduissekov/another-dummy-service/internal/common/errors"
+	"github.com/zhenisduissekov/another-dummy-service/internal/log"
 )
 
 func InternalError(slug string, err error, w http.ResponseWriter, r *http.Request) {
@@ -45,7 +45,7 @@ func RespondWithError(err error, w http.ResponseWriter, r *http.Request) {
 }
 
 func httpRespondWithError(err error, slug string, w http.ResponseWriter, _ *http.Request, msg string, status int) {
-	log.Printf("error: %s, slug: %s, msg: %s", err, slug, msg)
+	log.Errorf("error: %s, slug: %s, msg: %s", err, slug, msg)
 
 	resp := ErrorResponse{
 		Slug:       slug,
