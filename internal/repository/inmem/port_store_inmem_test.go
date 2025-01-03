@@ -19,6 +19,8 @@ func TestPortStore_CreateOrUpdatePort(t *testing.T) {
 
 		randomPort := newRandomDomainPort(t)
 
+		createRandomPortAndVerify(t, store, randomPort)
+
 		err := store.CreateOrUpdatePort(context.Background(), randomPort)
 		require.NoError(t, err)
 
@@ -56,17 +58,12 @@ func TestPortStore_CreateOrUpdatePort(t *testing.T) {
 
 		randomPort := newRandomDomainPort(t)
 
-		err := store.CreateOrUpdatePort(context.Background(), randomPort)
+		createRandomPortAndVerify(t, store, randomPort)
+
+		err := store.DeletePortById(context.Background(), randomPort.Id())
 		require.NoError(t, err)
 
-		port, err := store.GetPort(context.Background(), randomPort.Id())
-		require.NoError(t, err)
-		require.Equal(t, port, randomPort)
-
-		err = store.DeletePortById(context.Background(), randomPort.Id())
-		require.NoError(t, err)
-
-		port, err = store.GetPort(context.Background(), randomPort.Id())
+		_, err = store.GetPort(context.Background(), randomPort.Id())
 		require.Error(t, err)
 		require.ErrorIs(t, err, domain.ErrNotFound)
 	})
@@ -136,4 +133,15 @@ func newRandomDomainPort(t *testing.T) *domain.Port {
 	port, err := domain.NewPort(randomID, randomID, randomID, randomID, randomID, nil, nil, nil, randomID, randomID, nil)
 	require.NoError(t, err)
 	return port
+}
+
+func createRandomPortAndVerify(t *testing.T, store *PortStore, port *domain.Port) {
+	t.Helper()
+
+	err := store.CreateOrUpdatePort(context.Background(), port)
+	require.NoError(t, err)
+
+	storedPort, err := store.GetPort(context.Background(), port.Id())
+	require.NoError(t, err)
+	require.Equal(t, storedPort, port)
 }
