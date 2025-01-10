@@ -1,3 +1,16 @@
+![Github CI/CD](https://img.shields.io/appveyor/build/zhenisduissekov/another-dummy-service)
+![Github CI/CDl](https://img.shields.io/github/workflow/status/evt/rest-api-example/Go)
+![Go Reportl](https://goreportcard.com/badge/github.com/zhenisduissekov/rest-api-example)
+![Repository_Top Languagel](https://img.shields.io/github/languages/top/zhenisduissekov/another-dummy-service)
+![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/quality/g/zhenisduissekov/another-dummy-service/main)
+![GitHub go.mod Go versionl](https://img.shields.io/github/go-mod/go-version/zhenisduissekov/another-dummy-service)
+![Codacy Grade](https://img.shields.io/codacy/grade/c9467ed47e064b1981e53862d0286d65)
+![Github Repository Size](https://img.shields.io/github/repo-size/zhenisduissekov/another-dummy-service)
+![Lines of code](https://img.shields.io/tokei/lines/github/zhenisduissekov/another-dummy-service)
+![License](https://img.shields.io/badge/license-MIT-green)
+![GitHub release (latest by_date)](https://img.shields.io/github/v/release/zhenisduissekov/another-dummy-service)
+![GitHub last commit](https://img.shields.io/github/last-commit/zhenisduissekov/another-dummy-service)
+
 # Another Dummy Service
 
 ## About This Project
